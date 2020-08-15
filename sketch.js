@@ -1,35 +1,43 @@
-var stone,mango1,mango2,mango3,mango4,mango5,mango6,mango7,mango8,mango9,mango10,tree,ground,launcher,boy;
+
 const Engine = Matter.Engine;
 const World = Matter.World;
 const Bodies = Matter.Bodies;
 const Body = Matter.Body;
 const Constraint = Matter.Constraint;
 
+var tree, stone,ground, launcherObject;
+var mango1,mango2,mango3,mango4,mango5,mango6,mango7,mango8,mango9;
+var boy,boyImg,boyShot;
+
 function preload()
 {
-boy = loadImage('boy.png');	
+	boyImg = loadImage("boy.png");
+	Back = loadImage("download9.png");
 }
 
 function setup() {
-	createCanvas(1300,600);
+	createCanvas(1350, 600);
+
 
 	engine = Engine.create();
 	world = engine.world;
-	stone = new Stone(235,420,30);
-	mango1 = new Mango(1100,160,30);
-	mango2 = new Mango(1170,190,30);
-	mango3 = new Mango(1010,190,30);
-	mango4 = new Mango(1000,160,30);
-  mango5 = new Mango(900,250,30);
-  mango6 = new Mango(1080,300,30);
-  mango7 = new Mango(1000,260,30);
-  mango8 = new Mango(1120,220,30);
-  mango9 = new Mango(1020,300,30);
-  mango10 = new Mango(1180,250,30);
-	tree = new Tree(1050,380,450,600);
-	ground = new Ground(650,600,1300,30);
-	launcher = new Launcher(stone.body,{x:230,y:450});
 
+	//Create the Bodies Here.
+	boy = createSprite(200,530);
+	boy.addImage(boyImg);
+	boy.scale = 0.1;
+	tree = new Tree(900,350,30,300);
+	ground = new Ground(600,600,2000,20);
+	mango1 = new Mango(900,250,15);
+	mango2 = new Mango(800,200,15);
+	mango3 = new Mango(800,280,15);
+	mango4 = new Mango(1000,250,15);
+	mango5 = new Mango(670,300,15);
+	mango6 = new Mango(800,100,15);
+	mango7 = new Mango(900,100,15);
+	mango8 = new Mango(1000,300,15);
+	stone = new Stone(150,550,15);
+	boyShot = new Shot(stone.body,{x:145,y:480});
 	Engine.run(engine);
   
 }
@@ -37,9 +45,10 @@ function setup() {
 
 function draw() {
   rectMode(CENTER);
-  background("white");
-  image(boy,200,400,150,250);
-  stone.display();
+  
+  Engine.update(engine);
+
+  background(Back);
   tree.display();
   ground.display();
   mango1.display();
@@ -50,41 +59,43 @@ function draw() {
   mango6.display();
   mango7.display();
   mango8.display();
-  mango9.display();
-  mango10.display();
-  launcher.display();
-  DetectCollision(stone,mango1);
-  DetectCollision(stone,mango2);
-  DetectCollision(stone,mango3);
-  DetectCollision(stone,mango4);
-  DetectCollision(stone,mango5);
-  DetectCollision(stone,mango6);
-  DetectCollision(stone,mango7);
-  DetectCollision(stone,mango8);
-  DetectCollision(stone,mango9);
-  DetectCollision(stone,mango10);
+  stone.display();
+  boyShot.display();
+  detectCollision(stone,mango1);
+  detectCollision(stone,mango2);
+  detectCollision(stone,mango3);
+  detectCollision(stone,mango4);
+  detectCollision(stone,mango5);
+  detectCollision(stone,mango6);
+  detectCollision(stone,mango7);
+  detectCollision(stone,mango8);
   drawSprites();
+ 
 }
-function mouseDragged(){
-Matter.Body.setPosition(stone.body,{x: mouseX,y: mouseY});
+
+
+function detectCollision(lstone,lmango){
+	mangoBodyPosition=lmango.body.position
+	stoneBodyPosition=lstone.body.position
+	var distance=dist(stoneBodyPosition.x,stoneBodyPosition.y,mangoBodyPosition.x,mangoBodyPosition.y)
+	if(distance<=lmango.r+lstone.r){
+		Matter.Body.setStatic(lmango.body,false);
+	}
 }
-function mouseReleased(){
-launcher.fly();
-}
+
 function keyPressed(){
-if(keyCode === 32){
-  Matter.Body.setPosition(stone.body,{x: 230,y: 450});
-  launcher.attach(stone.body);
+
+	if(keyCode === 32){
+		Matter.Body.setPosition(stone.body,{x:150,y:550})
+		boyShot.attach(stone.body);
+	}
 }
-if(keyCode === UP_ARROW){
-  Matter.Body.applyForce(stone.body,stone.body.position,{x: 300,y: 600});
+
+
+function mouseDragged(){
+    Matter.Body.setPosition(stone.body,{x:mouseX,y:mouseY});
 }
-}
-function DetectCollision(stone,mango){
-mangoBodyPosition = mango.body.position;
-stoneBodyPosition = stone.body.position;
-var distance = dist(stoneBodyPosition.x, stoneBodyPosition.y,mangoBodyPosition.x,mangoBodyPosition.y);
-if(distance <= mango.r + stone.r){
-  Matter.Body.setStatic(mango.body,false);
-}
+
+function mouseReleased(){
+    boyShot.fly();
 }
